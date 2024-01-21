@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import StarRating from './StarRating'
+import ezreal from './ezreal.jpeg'
 
 const tempMovieData = [
   {
@@ -57,7 +58,7 @@ const average = (arr) =>
 const KEY = 'a739a08'
 
 export default function App() {
-  const [query, setQuery] = useState('inception')
+  const [query, setQuery] = useState('')
   const [movies, setMovies] = useState([])
   const [watched, setWatched] = useState([])
   const [isLoading, setIsLoading] = useState(false)
@@ -116,6 +117,8 @@ export default function App() {
         setError('')
         return
       }
+
+      handleCloseMovie()
       fetchMovies()
 
       return function () {
@@ -260,9 +263,10 @@ function MovieList({ movies, onSelectMovie }) {
 }
 
 function Movie({ movie, onSelectMovie }) {
+  const src = movie.Poster === 'N/A' ? ezreal : movie.Poster
   return (
     <li onClick={() => onSelectMovie(movie.imdbID)}>
-      <img src={movie.Poster} alt={`${movie.Title} poster`} />
+      <img src={src} alt={`${movie.Title} poster`} />
       <h3>{movie.Title}</h3>
       <div>
         <p>
@@ -326,6 +330,21 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
     onAddWatched(newWatchedMovie)
     onCloseMovie()
   }
+
+  useEffect(
+    function () {
+      function callBack(e) {
+        if (e.code === 'Escape') {
+          onCloseMovie()
+        }
+      }
+      document.addEventListener('keydown', callBack)
+      return function () {
+        document.removeEventListener('keydown', callBack)
+      }
+    },
+    [onCloseMovie]
+  )
 
   useEffect(
     function () {
