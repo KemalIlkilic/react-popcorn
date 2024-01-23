@@ -2,6 +2,8 @@ import { useEffect, useRef, useState } from 'react'
 import StarRating from './StarRating'
 import ezreal from './ezreal.jpeg'
 import { useMovies } from './useMovies'
+import { useLocalStorageState } from './useLocalStorageState'
+import { useKey } from './useKey'
 
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0)
@@ -14,15 +16,12 @@ const KEY = 'a739a08'
 export default function App() {
   const [query, setQuery] = useState('')
 
-  const [watched, setWatched] = useState(function () {
-    const watched = localStorage.getItem('watched')
-    return JSON.parse(watched)
-  })
-
   const [selectedId, setSelectedId] = useState(null)
   //tt1375666
 
   const { movies, isLoading, error } = useMovies(query)
+
+  const [watched, setWatched] = useLocalStorageState([], 'watched')
 
   function handleSelectMovie(id) {
     setSelectedId((selectedId) => (id === selectedId ? null : id))
@@ -40,13 +39,6 @@ export default function App() {
   function handleDeleteWatched(id) {
     setWatched((watched) => watched.filter((movie) => movie.imdbID !== id))
   }
-
-  useEffect(
-    function () {
-      localStorage.setItem('watched', JSON.stringify(watched))
-    },
-    [watched]
-  )
 
   return (
     <>
@@ -118,20 +110,11 @@ function Logo() {
 function Search({ query, setQuery }) {
   const inputElement = useRef(null)
 
-  useEffect(
-    function () {
-      function callback(e) {
-        if (document.activeElement === inputElement.current) return
-        if (e.code === 'Enter') {
-          inputElement.current.focus()
-          setQuery('')
-        }
-      }
-      document.addEventListener('keydown', callback)
-      return () => document.removeEventListener('keydown', callback)
-    },
-    [setQuery]
-  )
+  useKey('Enter', function () {
+    if (document.activeElement === inputElement.current) return
+    inputElement.current.focus()
+    setQuery('')
+  })
 
   return (
     <input
@@ -278,21 +261,7 @@ function MovieDetails({ selectedId, onCloseMovie, onAddWatched, watched }) {
     onAddWatched(newWatchedMovie)
     onCloseMovie()
   }
-
-  useEffect(
-    function () {
-      function callBack(e) {
-        if (e.code === 'Escape') {
-          onCloseMovie()
-        }
-      }
-      document.addEventListener('keydown', callBack)
-      return function () {
-        document.removeEventListener('keydown', callBack)
-      }
-    },
-    [onCloseMovie]
-  )
+  useKey('Escape', onCloseMovie)
 
   useEffect(
     function () {
