@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import StarRating from './StarRating'
 import ezreal from './ezreal.jpeg'
+import { useMovies } from './useMovies'
 
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0)
@@ -12,15 +13,16 @@ const KEY = 'a739a08'
 
 export default function App() {
   const [query, setQuery] = useState('')
-  const [movies, setMovies] = useState([])
+
   const [watched, setWatched] = useState(function () {
     const watched = localStorage.getItem('watched')
     return JSON.parse(watched)
   })
-  const [isLoading, setIsLoading] = useState(false)
-  const [error, setError] = useState('')
+
   const [selectedId, setSelectedId] = useState(null)
   //tt1375666
+
+  const { movies, isLoading, error } = useMovies(query)
 
   function handleSelectMovie(id) {
     setSelectedId((selectedId) => (id === selectedId ? null : id))
@@ -44,52 +46,6 @@ export default function App() {
       localStorage.setItem('watched', JSON.stringify(watched))
     },
     [watched]
-  )
-
-  useEffect(
-    function () {
-      const controller = new AbortController()
-
-      async function fetchMovies() {
-        try {
-          setIsLoading(true)
-          setError('')
-          const res = await fetch(
-            `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`,
-            { signal: controller.signal }
-          )
-          if (!res.ok) {
-            throw new Error('Response not okay')
-          }
-          const data = await res.json()
-          if (data.Response === 'False') {
-            throw new Error('Couldnt find Movie')
-          }
-          setMovies(data.Search)
-          setError('')
-        } catch (error) {
-          if (error.name !== 'AbortError') {
-            console.error(error.message)
-            setError(error.message)
-          }
-        } finally {
-          setIsLoading(false)
-        }
-      }
-      if (query.length < 3) {
-        setMovies([])
-        setError('')
-        return
-      }
-
-      handleCloseMovie()
-      fetchMovies()
-
-      return function () {
-        controller.abort()
-      }
-    },
-    [query]
   )
 
   return (
