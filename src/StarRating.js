@@ -1,37 +1,37 @@
-import { useState } from "react";
+import { useState } from 'react'
 
 const container = {
-  display: "flex",
-  alignItems: "center",
-  gap: "16px",
-};
+  display: 'flex',
+  alignItems: 'center',
+  gap: '16px',
+}
 const starContainer = {
-  display: "flex",
-};
+  display: 'flex',
+}
 
 export default function StarRating({
   maxRating = 5,
-  color = "#fcc419",
+  color = '#fcc419',
   size = 48,
-  className = "",
+  className = '',
   messages = [],
   defaultRating = 0,
   onSetRating,
 }) {
   // we give default value with maxRating = 5
-  const [rating, setRating] = useState(defaultRating);
-  const [tempRating, setTempRating] = useState(0);
+  const [rating, setRating] = useState(defaultRating)
+  const [tempRating, setTempRating] = useState(0)
   function handleRating(rating) {
-    setRating(rating);
-    onSetRating(rating);
+    setRating(rating)
+    onSetRating(rating)
   }
 
   const text = {
-    lineHeight: "1",
-    margin: "0",
+    lineHeight: '1',
+    margin: '0',
     color,
     fontSize: `${size / 1.5}px`,
-  };
+  }
 
   return (
     <div style={container} className={className}>
@@ -51,19 +51,19 @@ export default function StarRating({
       <p style={text}>
         {messages.length === maxRating
           ? messages[tempRating ? tempRating - 1 : rating - 1]
-          : tempRating || rating || ""}
+          : tempRating || rating || ''}
       </p>
     </div>
-  );
+  )
 }
 
 function Star({ onRate, full, onHoverIn, onHoverOut, color, size }) {
   const star = {
     width: `${size}px`,
     height: `${size}px`,
-    display: "block",
-    cursor: "pointer",
-  };
+    display: 'block',
+    cursor: 'pointer',
+  }
   return (
     <span
       role="button"
@@ -97,7 +97,7 @@ function Star({ onRate, full, onHoverIn, onHoverOut, color, size }) {
         </svg>
       )}
     </span>
-  );
+  )
 }
 /*
 FULL STAR
